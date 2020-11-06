@@ -1,0 +1,18 @@
+Metadata-Version: 1.1
+Name: s3-environ
+Version: 0.0.5
+Summary: Load environment variables from a AWS S3 file!
+Home-page: https://github.com/jonatasbaldin/s3-environ
+Author: Jonatas Baldin
+Author-email: jonatas.baldin@gmail.com
+License: MIT License
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Utilities
