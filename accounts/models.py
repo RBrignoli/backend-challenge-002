@@ -25,8 +25,37 @@ from django.utils.translation import ugettext as _
 # Models
 ###
 class User(AbstractUser):
-    # Override user model here
-    pass
+    MALE = 'male'
+    FEMALE = 'female'
+    OTHER = 'other'
+
+    GENDER_CHOICES = [
+        (MALE, _(MALE)),
+        (FEMALE, _(FEMALE)),
+        (OTHER, _(OTHER)),
+    ]
+
+    height = models.CharField(
+        verbose_name=_('height'),
+        help_text=_('in metres'),
+        null=True,
+    )
+    weight = models.CharField(
+        verbose_name=_('weight'),
+        help_text=_('in kgs'),
+        null=True,
+    )
+    date_of_birth = models.DateField(
+        verbose_name=_('date of birth'),
+        null=True,
+    )
+    gender = models.CharField(
+        choices=GENDER_CHOICES,
+        verbose_name=_('gender'),
+        max_length=8,
+        default=OTHER
+    )
+
 
 
 class ChangeEmailRequest(models.Model):
