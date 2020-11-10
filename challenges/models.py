@@ -6,6 +6,8 @@ Challenges Models
 ###
 from django.db import models
 from helpers.models import TimestampModel
+from helpers.functions import choice_formatter
+
 ###
 # Choices
 ###
@@ -31,8 +33,21 @@ CHALLENGE_TYPE_CHOICES = [
     LIVE_TEMPERATELY,
     INVEST_IN_OTHERS,
     FRESH_AIR,
-    EDUCATION
+    EDUCATION,
     ]
+CHALLENGE_CATEGORY_CHOICES = [
+    choice_formatter(TRUST_MORE_STRESS_LESS),
+    choice_formatter(HAVE_REFRESHING_REST),
+    choice_formatter(ENJOY_SUNLIGHT),
+    choice_formatter(NUTRITION),
+    choice_formatter(EXERCISE),
+    choice_formatter(WATER),
+    choice_formatter(LIVE_TEMPERATELY),
+    choice_formatter(INVEST_IN_OTHERS),
+    choice_formatter(FRESH_AIR),
+    choice_formatter(EDUCATION),
+    choice_formatter(SUPER_CHALLENGE),
+]
 
 DEFAULT_SCORE = 1,
 SUPER_SCORE = 10,
@@ -53,34 +68,10 @@ SCORE_CHOICES = [
 # Models
 ###
 
-TRUST_MORE_STRESS_LESS = 'trust_more_and_stress_less'
-HAVE_REFRESHING_REST = 'have_refreshing_rest'
-ENJOY_SUNLIGHT = 'enjoy_sunlight'
-NUTRITION = 'nutrition'
-EXERCISE = 'exercise'
-WATER = 'water'
-LIVE_TEMPERATELY = 'live_temperately'
-INVEST_IN_OTHERS = 'invest_in_others'
-FRESH_AIR = 'fresh_air'
-EDUCATION = 'education'
-SUPER_CHALLENGE = 'super_challenge'
-
-CHALLENGE_TYPE_CHOICES = [
-    TRUST_MORE_STRESS_LESS,
-    HAVE_REFRESHING_REST,
-    ENJOY_SUNLIGHT,
-    NUTRITION,
-    EXERCISE,
-    WATER,
-    LIVE_TEMPERATELY,
-    INVEST_IN_OTHERS,
-    FRESH_AIR,
-    EDUCATION
-    ]
 
 class Challenges(TimestampModel):
     category = models.CharField(
-        choices=CHALLENGE_TYPE_CHOICES,
+        choices=CHALLENGE_CATEGORY_CHOICES,
         verbose_name=('category'),
         max_length=32,
     )
@@ -97,11 +88,12 @@ class Challenges(TimestampModel):
     )
 
     is_super = models.BooleanField(
-        verbose_name=_('is super'),
+        verbose_name= ('is super'),
         default= False,
         blank = True,
     )
-    score = models.PositiveSmallIntegerField(
+    score = models.IntegerField(
+        choices = SCORE_CHOICE,
         verbose_name=('score'),
         default = DEFAULT_SCORE,
         blank = True,

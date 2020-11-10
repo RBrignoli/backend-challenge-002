@@ -17,6 +17,10 @@ from accounts.forms import (
     CustomResetPasswordForm,
 )
 
+from accounts.models import User
+
+from rest_auth.registration.serializers import RegisterSerializer as BaseRegisterSerializer
+
 
 ###
 # Serializers
@@ -53,3 +57,53 @@ class PasswordResetSerializer(BasePasswordResetSerializer):
             'email_template_name': 'account/password_reset_message.txt',
             'html_email_template_name': 'account/password_reset_message.html',
         }
+
+
+class AccountSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('height', 'weight', 'date_of_birth', 'gender')
+
+class RegisterSerializer(BaseRegisterSerializer):
+
+    corporate = serializers.SlugRelatedField(
+        slug_field='name',
+        write_only=True,
+        queryset = Corporation.objects.all(),
+        required = True,
+    )
+
+    name = serializers.CharField(
+        write_only=True,
+        max_lenght=64,
+        required=True,
+        allow_blank=False,
+    )
+
+
+
+    def get_cleaned_data(self):
+        return {
+            'username': self.validated_data.get('username',''),
+            'password1': self.validated_data.get('password1', ''),
+            'email': self.validated_data.get('email', ''),
+            'name': self.validated_data.get('name', ''),
+            'corporate': self.validated_data('corporate', ''),
+
+        }
+
+    def custom_signup(self, request, user):
+        user.corporate = self.get_cleaned_data().get('corporate'),
+        user.name = self.get_cleaned_data().get('name')
+        user.save()
+        pass
+
+    def validate(self, data):
+        if data.get('corporate') and data.get('corporate').users.filter(name=data.get('name')).exist():
+            raise serializers.ValidationError({'name':("A user is already registered with this name")})
+        return super().validate(data)
+
+
+
+
