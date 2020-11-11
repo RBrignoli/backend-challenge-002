@@ -10,8 +10,9 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.contrib.postgres.fields import ArrayField
+from helpers.models import TimestampModel
+from helpers.functions import choice_formatter
 
-from helpers.firebase import unsubscribe_from_topic, subscribe_to_topic
 
 
 ###
@@ -27,6 +28,44 @@ GENDER_CHOICES = [
     (OTHER, _(OTHER)),
 ]
 
+TRUST_MORE_STRESS_LESS = 'trust_more_and_stress_less'
+HAVE_REFRESHING_REST = 'have_refreshing_rest'
+ENJOY_SUNLIGHT = 'enjoy_sunlight'
+NUTRITION = 'nutrition'
+EXERCISE = 'exercise'
+WATER = 'water'
+LIVE_TEMPERATELY = 'live_temperately'
+INVEST_IN_OTHERS = 'invest_in_others'
+FRESH_AIR = 'fresh_air'
+EDUCATION = 'education'
+SUPER_CHALLENGE = 'super_challenge'
+
+CHALLENGE_TYPE_CHOICES = [
+    TRUST_MORE_STRESS_LESS,
+    HAVE_REFRESHING_REST,
+    ENJOY_SUNLIGHT,
+    NUTRITION,
+    EXERCISE,
+    WATER,
+    LIVE_TEMPERATELY,
+    INVEST_IN_OTHERS,
+    FRESH_AIR,
+    EDUCATION,
+    ]
+CHALLENGE_CATEGORY_CHOICES = [
+    choice_formatter(TRUST_MORE_STRESS_LESS),
+    choice_formatter(HAVE_REFRESHING_REST),
+    choice_formatter(ENJOY_SUNLIGHT),
+    choice_formatter(NUTRITION),
+    choice_formatter(EXERCISE),
+    choice_formatter(WATER),
+    choice_formatter(LIVE_TEMPERATELY),
+    choice_formatter(INVEST_IN_OTHERS),
+    choice_formatter(FRESH_AIR),
+    choice_formatter(EDUCATION),
+    choice_formatter(SUPER_CHALLENGE),
+]
+
 
 ###
 # Querysets
@@ -36,7 +75,28 @@ GENDER_CHOICES = [
 ###
 # Models
 ###
-class UserProfile(AbstractUser):
+class Corporation(TimestampModel):
+
+    name = models.CharField(
+        verbose_name=('name'),
+        max_length=64,
+        unique=True,
+    )
+    start_date = models.DateField(
+        verbose_name = ('start date'),
+        null = True,
+        blank = True,
+    )
+
+    has_started_program = models.BooleanField(
+        verbose_name= ('has started program'),
+        default= False,
+        editable= False,
+    )
+    def __str__(self):
+        return self.name
+
+class UserProfile(TimestampModel):
 
     height = models.CharField(
         max_length= 255,
@@ -76,7 +136,7 @@ class User(AbstractUser):
         null=True,
     )
     corporate = models.ForeignKey(
-        Corporation,
+        to='accounts.Corporation',
         verbose_name=_('corporate'),
         related_name='users',
         on_delete=models.CASCADE,
@@ -85,15 +145,6 @@ class User(AbstractUser):
     has_generated_report = models.BooleanField(
         verbose_name=_('has generated end of program report'),
         default=False,
-    )
-
-    # Firebase
-    firebase_device_tokens = ArrayField(
-        models.CharField(max_length=256),
-        verbose_name=_('firebase device tokens'),
-        default=list,
-        null=True,
-        blank=True,
     )
 
     topics = ArrayField(
@@ -109,25 +160,11 @@ class User(AbstractUser):
         super().__init__(*args, **kwargs)
         self.__initial_topics = self.topics
 
-    def save(self, **kwargs):
-        super().save(**kwargs)
-
-        if self.firebase_device_tokens:
-            unsubscribe_from = set(self.__initial_topics) - set(self.topics)
-            for topic in unsubscribe_from:
-                unsubscribe_from_topic(self.firebase_device_tokens, topic)
-
-            subscribe_to = set(self.topics) - set(self.__initial_topics)
-            for topic in subscribe_to:
-                subscribe_to_topic(self.firebase_device_tokens, topic)
-
     def __str__(self):
         return self.email
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['name', 'corporate'], name='unique_named_user')]
-
-
 
 class ChangeEmailRequest(models.Model):
     # Helpers
@@ -149,23 +186,3 @@ class ChangeEmailRequest(models.Model):
     email = models.EmailField(verbose_name=_('email'))
 
 
-class Corporate():
-
-    name = models.CharField(
-        verbose_name='name',
-        max_lenght=30,
-        unique=True,
-    )
-    start_date = models.DateField(
-        verbose_name = ('start date'),
-        null = True,
-        blank = True,
-    )
-
-    has_started_program = models.BooleanField(
-        verbose_name= ('has started program'),
-        default= False,
-        editable= False,
-    )
-    def __str__(self):
-        return self.name

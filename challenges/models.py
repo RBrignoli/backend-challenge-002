@@ -7,6 +7,9 @@ Challenges Models
 from django.db import models
 from helpers.models import TimestampModel
 from helpers.functions import choice_formatter
+from django.core import validators
+
+from accounts.models import Corporation, User
 
 ###
 # Choices
@@ -92,8 +95,7 @@ class Challenges(TimestampModel):
         default= False,
         blank = True,
     )
-    score = models.IntegerField(
-        choices = SCORE_CHOICE,
+    score = models.PositiveSmallIntegerField(
         verbose_name=('score'),
         default = DEFAULT_SCORE,
         blank = True,
@@ -103,5 +105,72 @@ class Challenges(TimestampModel):
         unique=True
     )
 
+    def save(self, *args, **kwargs):
+        if self.is_super:
+            self.score = SUPER_SCORE
+        super().save(*args, **kwargs)
+
+    class Meta:
+        abstract = True
+
+class ChallengeTemplate(Challenges):
+    relative_week = models.SmallIntegerField(
+        verbose_name= ('week number'),
+        validators=[validators.MaxValueValidator(10)]
+    )
+    relative_day = models.SmallIntegerField(
+        verbose_name= ('day number'),
+        validators=[validators.MaxValueValidator(7)],
+        null=True,
+        blank=True,
+    )
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['category', 'relative_week', 'relative_day'],
+                                               name='unique_challenge_template')]
+
     def __str__(self):
-        return self.title
+        if not self.is_super:
+            return f'Template: {self.category.title().replace("_", " ")} - Week {self.relative_week} - Day {self.relative_day}'
+        else:
+            return f'Template: {self.category.title().replace("_", " ")} - Week {self.relative_week}'
+
+class CorporationChallenge(Challenges):
+    # Attributes
+    date = models.DateField(
+        verbose_name= ('date'),
+        null=True,
+        blank=True,
+    )
+
+    # Relationships
+    corporation = models.ForeignKey(
+        Corporation,
+        verbose_name= ('corporation'),
+        related_name='challenges',
+        on_delete=models.CASCADE,
+    )
+    completed_users = models.ManyToManyField(
+        User,
+        verbose_name= ('completed users'),
+        related_name='completed_challenges',
+        blank=True,
+    )
+    skipped_users = models.ManyToManyField(
+        User,
+        related_name='skipped_challenges',
+        verbose_name= ('skipped users'),
+        blank=True,
+    )
+    parent_template = models.ForeignKey(
+        ChallengeTemplate,
+        verbose_name= ('parent template'),
+        related_name='child_challenges',
+        on_delete=models.SET_NULL,
+        null=True,
+    )
+
+    def __str__(self):
+        if not self.is_super:
+            return f'Challenge: {self.category.title().replace("_", " ")} - {self.corporation} - Date {self.date}'
+        else:
+            return f'Super Challenge: {self.category.title().replace("_", " ")} - {self.corporation} - Week {self.parent_template.relative_week}'
