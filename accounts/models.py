@@ -93,6 +93,7 @@ class Corporation(TimestampModel):
         default= False,
         editable= False,
     )
+
     def __str__(self):
         return self.name
 
@@ -150,6 +151,7 @@ class User(AbstractUser):
     corporate = models.ForeignKey(
         Corporation,
         verbose_name = ('corporate'),
+        related_name = ('users'),
         on_delete = models.CASCADE,
         null = True,
     )
