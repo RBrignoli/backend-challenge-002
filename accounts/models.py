@@ -100,23 +100,23 @@ class UserProfile(TimestampModel):
 
     height = models.CharField(
         max_length= 255,
-        verbose_name=_('height'),
-        help_text=_('in metres'),
+        verbose_name=('height'),
+        help_text=('in metres'),
         null=True,
     )
     weight = models.CharField(
         max_length = 255,
-        verbose_name=_('weight'),
-        help_text=_('in kgs'),
+        verbose_name=('weight'),
+        help_text=('in kgs'),
         null=True,
     )
     date_of_birth = models.DateField(
-        verbose_name=_('date of birth'),
+        verbose_name=('date of birth'),
         null=True,
     )
     gender = models.CharField(
         choices=GENDER_CHOICES,
-        verbose_name=_('gender'),
+        verbose_name=('gender'),
         max_length=8,
         default=OTHER
     )
@@ -126,24 +126,17 @@ class UserProfile(TimestampModel):
 
 class User(AbstractUser):
     email = models.EmailField(
-        verbose_name =_('email adress'),
+        verbose_name = ('email adress'),
         unique = True,
     )
 
     name = models.CharField(
-        verbose_name=_('name'),
+        verbose_name= ('name'),
         max_length=64,
         null=True,
     )
-    corporate = models.ForeignKey(
-        to='accounts.Corporation',
-        verbose_name=_('corporate'),
-        related_name='users',
-        on_delete=models.CASCADE,
-        null=True,
-    )
     has_generated_report = models.BooleanField(
-        verbose_name=_('has generated end of program report'),
+        verbose_name= ('has generated end of program report'),
         default=False,
     )
 
@@ -154,11 +147,21 @@ class User(AbstractUser):
         null=True,
         blank=True,
     )
+    corporate = models.ForeignKey(
+        Corporation,
+        verbose_name = ('corporate'),
+        on_delete = models.CASCADE,
+        null = True,
+    )
+
     __initial_topics = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.__initial_topics = self.topics
+
+    def save(self, **kwargs):
+        super().save(**kwargs)
 
     def __str__(self):
         return self.email

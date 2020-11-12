@@ -11,9 +11,11 @@ from rest_framework_nested import routers
 ###
 # Routers
 ###
+from challenges.api.v1.views import CorporationChallengeViewSet
+
 """ Main router """
 router = routers.SimpleRouter()
-
+router.register(r'challenges', CorporationChallengeViewSet)
 
 ###
 # URLs

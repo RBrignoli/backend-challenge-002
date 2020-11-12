@@ -9,6 +9,7 @@ from rest_auth.models import TokenModel
 from rest_auth.serializers import (
     UserDetailsSerializer as BaseUserDetailsSerializer,
     PasswordResetSerializer as BasePasswordResetSerializer,
+    LoginSerializer as BaseLoginSerializer
 )
 from rest_framework import serializers
 from rest_framework.validators import ValidationError
@@ -17,7 +18,7 @@ from accounts.forms import (
     CustomResetPasswordForm,
 )
 
-from accounts.models import UserProfile, Corporation, User
+from accounts.models import UserProfile, Corporation
 
 from rest_auth.registration.serializers import RegisterSerializer as BaseRegisterSerializer
 
@@ -63,7 +64,7 @@ class UserProfileWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ('height', 'weight', 'date_of_birth', 'gender')
+        fields = ('height', 'weight', 'date_of_birth', 'gender',)
 
 class RegisterSerializer(BaseRegisterSerializer):
 
@@ -81,27 +82,24 @@ class RegisterSerializer(BaseRegisterSerializer):
         allow_blank=False,
     )
 
-
-
     def get_cleaned_data(self):
         return {
-            'username': self.validated_data.get('username',''),
+            'username': self.validated_data.get('username', ''),
             'password1': self.validated_data.get('password1', ''),
             'email': self.validated_data.get('email', ''),
             'name': self.validated_data.get('name', ''),
-            'corporate': self.validated_data('corporate', ''),
-
+            'corporate': self.validated_data.get('corporate', ''),
         }
 
     def custom_signup(self, request, user):
-        user.corporate = self.get_cleaned_data().get('corporate'),
+        user.corporate = self.get_cleaned_data().get('corporate')
         user.name = self.get_cleaned_data().get('name')
         user.save()
         pass
 
     def validate(self, data):
-        if data.get('corporate') and data.get('corporate').users.filter(name=data.get('name')).exist():
-            raise serializers.ValidationError({'name':("A user is already registered with this name")})
+        if data.get('corporate') and data.get('corporate').users.filter(name=data.get('name')).exists():
+            raise serializers.ValidationError({'name': _("A user is already registered with this name.")})
         return super().validate(data)
 
 class CustomUserDetailsSerializer(BaseUserDetailsSerializer):
@@ -138,6 +136,7 @@ class CustomUserDetailsSerializer(BaseUserDetailsSerializer):
 
         return super().update(instance=instance, validated_data=validated_data)
 
-
+class LoginSerializer(BaseLoginSerializer):
+    device_token = serializers.CharField(allow_blank=False)
 
 

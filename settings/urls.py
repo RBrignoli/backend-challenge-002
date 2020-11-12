@@ -12,6 +12,7 @@ from helpers.health_check_view import health_check
 ###
 # URLs
 ###
+
 urlpatterns = [
     # Admin
     url(r'^admin/', admin.site.urls),

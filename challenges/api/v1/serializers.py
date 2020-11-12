@@ -6,6 +6,7 @@ API V1: Challenges Serializers
 ###
 from rest_framework import serializers, fields
 from challenges.models import CorporationChallenge
+from challenges.constants import COMPLETED, SKIPPED
 
 ###
 # Serializers
@@ -29,4 +30,4 @@ class ChallengeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CorporationChallenge
-        fields = ('category', 'title', 'text', 'is_super', 'score', 'URLName')
+        fields = ('id','category', 'title', 'text', 'is_super', 'score', 'URLName', 'corporation')
