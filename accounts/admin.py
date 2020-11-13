@@ -62,14 +62,10 @@ class CorporationAdmin(admin.ModelAdmin):
                 for template in ChallengeTemplate.objects.all():
                     obj = CorporationChallenge(
                         category=template.category,
-                        title_one=template.title_one,
-                        description_one=template.description_one,
-                        title_two=template.title_two,
-                        description_two=template.description_two,
-                        title_three=template.title_three,
-                        description_three=template.description_three,
+                        title=template.title,
+                        text=template.text,
                         score=template.score,
-                        url=template.url,
+                        urlNAME=template.url,
                         is_super=template.is_super,
                         corporation=corporation,
                         parent_template=template,
