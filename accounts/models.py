@@ -97,33 +97,7 @@ class Corporation(TimestampModel):
     def __str__(self):
         return self.name
 
-class UserProfile(TimestampModel):
 
-    height = models.CharField(
-        max_length= 255,
-        verbose_name=('height'),
-        help_text=('in metres'),
-        null=True,
-    )
-    weight = models.CharField(
-        max_length = 255,
-        verbose_name=('weight'),
-        help_text=('in kgs'),
-        null=True,
-    )
-    date_of_birth = models.DateField(
-        verbose_name=('date of birth'),
-        null=True,
-    )
-    gender = models.CharField(
-        choices=GENDER_CHOICES,
-        verbose_name=('gender'),
-        max_length=8,
-        default=OTHER
-    )
-
-    def __str___(self):
-        return (self.title)
 
 class User(AbstractUser):
     email = models.EmailField(
@@ -191,3 +165,38 @@ class ChangeEmailRequest(models.Model):
     email = models.EmailField(verbose_name=_('email'))
 
 
+class UserProfile(TimestampModel):
+
+    # Relationships
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name='profile',
+        verbose_name=_('user'),
+    )
+
+    height = models.CharField(
+        max_length= 255,
+        verbose_name=('height'),
+        help_text=('in metres'),
+        null=True,
+    )
+    weight = models.CharField(
+        max_length = 255,
+        verbose_name=('weight'),
+        help_text=('in kgs'),
+        null=True,
+    )
+    date_of_birth = models.DateField(
+        verbose_name=('date of birth'),
+        null=True,
+    )
+    gender = models.CharField(
+        choices=GENDER_CHOICES,
+        verbose_name=('gender'),
+        max_length=8,
+        default=OTHER
+    )
+
+    def __str___(self):
+        return (self.title)

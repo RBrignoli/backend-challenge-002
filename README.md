@@ -8,15 +8,7 @@ In this challenge you will develop a simplified version of The New Life app back
 
 As mentioned in the description, the entities's structure must be exctracted from the [design screens](https://app.zeplin.io/project/5c670ec2dd0ba39a1b11af22) and respect the following user stories/requirements:
 
-* User should be able to register an account with a profile
-* User should be able to log in on the app with a registered account
-* User should be able to log out of the app
-* As a user, I can see all challenges available on the current day
-* As a user, I can see challenges filtering by date
-* As a user, I can mark one challenge as completed or skipped
-* Every user earns one point per challenge completed
-* As a user, I can see the leaderboard with the challenges points
-* As a user, I can see the details of my registered profile
+* 
 
 ### URLs    
 

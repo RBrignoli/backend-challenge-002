@@ -15,7 +15,7 @@ from django.contrib import admin
 from django.utils.translation import ugettext as _
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
-from challenges.models import ChallengeTemplate, CorporationChallenge
+from challenges.models import CorporationChallenge, ChallengeTemplate
 from . import models
 
 
@@ -23,18 +23,32 @@ from . import models
 # Inline Admin Models
 ###
 
+class UserProfileAdmin(admin.StackedInline):
+    model = models.UserProfile
+    fk_name = "user"
 
 ###
 # Main Admin Models
 ###
-@admin.register(models.User)
-class UserAdmin(BaseUserAdmin):
-    list_display = ('id', 'email', 'username', 'is_active', 'last_login', 'date_joined',)
+
 
 @admin.register(models.ChangeEmailRequest)
 class ChangeEmailRequestAdmin(admin.ModelAdmin):
     list_display = ('email',)
     readonly_fields = ('uuid',)
+
+
+@admin.register(models.User)
+class UserAdmin(BaseUserAdmin):
+    list_display = ('email', 'name', 'corporate',)
+    inlines = (UserProfileAdmin,)
+    fieldsets = (
+        (_('Authentication'), {'fields': ('email', 'password', 'corporate',)}),
+        (_('Personal Information'), {'fields': ('name', 'has_generated_report',)}),
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser')}),
+        (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
+    )
+
 
 
 @admin.register(models.Corporation)
@@ -65,12 +79,11 @@ class CorporationAdmin(admin.ModelAdmin):
                         title=template.title,
                         text=template.text,
                         score=template.score,
-                        urlNAME=template.url,
+                        URLName=template.URLName,
                         is_super=template.is_super,
                         corporation=corporation,
                         parent_template=template,
-                        thumbnail_url=template.thumbnail_url,
-                        education_title=template.education_title,
+
                     )
                     if not template.is_super:
                         delta = timedelta(days=(template.relative_day - 1) + 7 * (template.relative_week - 1))

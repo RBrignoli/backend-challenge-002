@@ -52,8 +52,8 @@ CHALLENGE_CATEGORY_CHOICES = [
     choice_formatter(SUPER_CHALLENGE),
 ]
 
-DEFAULT_SCORE = 1,
-SUPER_SCORE = 10,
+DEFAULT_SCORE = 1
+SUPER_SCORE = 10
 
 SCORE_CHOICES = [
     DEFAULT_SCORE,
@@ -70,7 +70,9 @@ SCORE_CHOICES = [
 ###
 # Models
 ###
-
+class Choices(models.IntegerChoices):
+    DEFAULT_SCORE = 1, 'default'
+    SUPER_SCORE = 10, 'super'
 
 class Challenges(TimestampModel):
     category = models.CharField(
@@ -95,10 +97,9 @@ class Challenges(TimestampModel):
         default= False,
         blank = True,
     )
-    score = models.PositiveSmallIntegerField(
-        verbose_name=('score'),
-        default = DEFAULT_SCORE,
-        blank = True,
+    score = models.IntegerField(
+        default=Choices.DEFAULT_SCORE,
+        choices=Choices.choices
     )
     URLName = models.SlugField(
         max_length=255,
