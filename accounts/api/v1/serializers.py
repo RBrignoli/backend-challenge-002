@@ -4,6 +4,8 @@ API V1: Accounts Serializers
 ###
 # Libraries
 ###
+
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import User
 from rest_auth.models import TokenModel
 from rest_auth.serializers import (
@@ -18,9 +20,11 @@ from accounts.forms import (
     CustomResetPasswordForm,
 )
 
-from accounts.models import UserProfile, Corporation
+from accounts.models import UserProfile, Corporation, GENDER_CHOICES
 
 from rest_auth.registration.serializers import RegisterSerializer as BaseRegisterSerializer
+
+UserModel = get_user_model()
 
 
 ###
@@ -81,6 +85,20 @@ class RegisterSerializer(BaseRegisterSerializer):
         required=True,
         allow_blank=False,
     )
+    height = serializers.CharField(
+        max_length=255,
+        allow_null=True,
+    )
+    weight = serializers.CharField(
+        max_length=255,
+        allow_null=True,
+    )
+    date_of_birth = serializers.DateField(
+        allow_null=True,
+    )
+    gender = serializers.ChoiceField(
+        choices=GENDER_CHOICES,
+    )
 
     def get_cleaned_data(self):
         return {
@@ -99,8 +117,17 @@ class RegisterSerializer(BaseRegisterSerializer):
 
     def validate(self, data):
         if data.get('corporate') and data.get('corporate').users.filter(name=data.get('name')).exists():
-            raise serializers.ValidationError({'name': _("A user is already registered with this name.")})
+            raise serializers.ValidationError({'name': ("A user is already registered with this name.")})
         return super().validate(data)
+
+    def save(self, request):
+        weight = request.data.pop('weight')
+        height = request.data.pop('height')
+        date_of_birth = request.data.pop('date_of_birth')
+        gender = request.data.pop('gender')
+        instance = super().save(request)
+        profile = UserProfile.objects.create(weight=weight, height=height, date_of_birth=date_of_birth, gender=gender, user=instance)
+        return instance
 
 class CustomUserDetailsSerializer(BaseUserDetailsSerializer):
     """
